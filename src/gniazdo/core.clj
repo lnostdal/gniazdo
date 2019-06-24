@@ -51,9 +51,9 @@
                           [value])]
       (assert (every? string? header-values))
       (.setHeader
-        request
-        ^String header
-        ^java.util.List header-values))))
+       request
+       ^String header
+       ^java.util.List header-values))))
 
 (defn- add-subprotocols!
   [^ClientUpgradeRequest request subprotocols]
@@ -117,29 +117,29 @@
    is representing a secure WebSocket endpoint (\"wss://...\") an SSL-capable
    instance will be returned."
   (^WebSocketClient
-    [] (WebSocketClient.))
+   [] (WebSocketClient.))
   (^WebSocketClient
-    [^URI uri]
-    (if (= "wss" (.getScheme uri))
-      (WebSocketClient. (SslContextFactory.))
-      (WebSocketClient.))))
+   [^URI uri]
+   (if (= "wss" (.getScheme uri))
+     (WebSocketClient. (SslContextFactory.))
+     (WebSocketClient.))))
 
 (defn- connect-with-client
   "Connect to a WebSocket using the supplied `WebSocketClient` instance."
   [^WebSocketClient client ^URI uri opts]
-   (let [request (upgrade-request opts)
-         cleanup (::cleanup opts)
-         result-promise (promise)
-         listener (listener opts result-promise)]
-     (.connect client listener uri request)
-     (let [session (deref-session result-promise)]
-       (reify Client
-         (send-msg [_ msg]
-           (send-to-endpoint msg (.getRemote session)))
-         (close [_]
-           (when cleanup
-             (cleanup))
-           (.close session))))))
+  (let [request (upgrade-request opts)
+        cleanup (::cleanup opts)
+        result-promise (promise)
+        listener (listener opts result-promise)]
+    (.connect client listener uri request)
+    (let [session (deref-session result-promise)]
+      (reify Client
+        (send-msg [_ msg]
+          (send-to-endpoint msg (.getRemote session)))
+        (close [_]
+          (when cleanup
+            (cleanup))
+          (.close session))))))
 
 (defn- connect-helper
   [^URI uri opts]
